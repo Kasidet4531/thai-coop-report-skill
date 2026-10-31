@@ -1,60 +1,39 @@
-# เล่มสหกิจศึกษา — Agent Skill สำหรับ Claude / Codex / Antigravity
+# Thai Co-op Report Skill
 
-Skill นี้ให้ AI สร้าง **รายงานสหกิจศึกษาฉบับสมบูรณ์** เป็นไฟล์ Word (.docx) ตามรูปแบบที่ภาควิชากำหนด
-คุณไม่ต้องตั้งค่าขอบกระดาษ ฟอนต์ หรือเลขหน้าเอง
+An agent skill that builds your **รายงานสหกิจศึกษาฉบับสมบูรณ์** (Thai co-op education final report) as a Word file that already matches the department format, so you don't spend an evening fighting margins, Thai fonts and page numbers.
 
-- ปกนอก กระดาษรองปก ปกใน
-- บทคัดย่อภาษาไทยและภาษาอังกฤษ (ABSTRACT) กิตติกรรมประกาศ
-- สารบัญ สารบัญตาราง สารบัญรูป แบบอัตโนมัติ
-- บทที่ 1–5 เลขหัวข้อ 1.1, 1.2 … เรียงให้เอง
-- เอกสารอ้างอิง ภาคผนวก ก ข ค … ประวัติผู้เขียน
+Tell your agent what you have: a few cover details, a messy draft, or notes from your internship. You get back a `.docx` with the covers, both abstracts, the acknowledgement, an automatic table of contents, chapters 1–5, references, appendices and the author biography, all laid out correctly. Anything you haven't provided shows up as a red `[placeholder]`. The skill never makes up results or names.
 
-**รูปแบบที่ตั้งไว้:**
-- กระดาษ A4 ขอบซ้าย 3 ซม. ขอบบน ล่าง และขวา 2.54 ซม.
-- ใช้ฟอนต์ TH SarabunPSK ทั้งเล่ม เนื้อหาขนาด 16 ชื่อบทขนาด 18 ตัวหนา
-- ส่วนนำใช้เลขหน้าโรมัน (I II III) ส่วนเนื้อหาใช้เลขอารบิก เลขหน้าอยู่กลางล่าง หน้าแรกของแต่ละบทไม่แสดงเลขหน้า
-- เนื้อหาจัดแบบ Thai Distributed โดยตัดคำไทยไว้ก่อน ตัวอักษรจึงไม่ถูกยืด
+Works with Claude Code, Claude Desktop / Claude.ai, Codex, Antigravity, and any agent that reads `SKILL.md` skills.
 
-## ใช้ทำอะไรได้บ้าง
+## Installation (1-minute setup)
 
-พิมพ์บอก AI ตามปกติ เช่น
+### 1. Install Python packages (once)
 
-> ช่วยทำเทมเพลตเล่มสหกิจให้หน่อย ชื่อ นายสมชาย ใจดี ภาควิชาวิศวกรรมไฟฟ้า ฝึกที่บริษัท ABC ปีการศึกษา 2568
+```bash
+pip install python-docx pythainlp
+```
 
-> ไฟล์ draft.docx เป็นร่างเล่มสหกิจ ช่วยจัดให้ถูก format หน่อย เนื้อหาห้ามเปลี่ยน
+Also install the **TH SarabunPSK** font (free from SIPA or f0nt.com). Without it, Word shows a substitute font on screen.
 
-> ช่วยเขียนเล่มสหกิจจากโน้ตนี้ … (ข้อมูลที่ยังไม่มี AI จะเว้นเป็น [ช่องสีแดง] ให้ ไม่แต่งตัวเลขขึ้นเอง)
+### 2. Get the skill
 
-## ติดตั้ง
-
-### 1. ติดตั้งโปรแกรมที่ต้องใช้ (ทำครั้งเดียว)
-
-- **Python 3.9 ขึ้นไป** แล้วรันคำสั่ง
-  ```bash
-  pip install python-docx pythainlp
-  ```
-- **ฟอนต์ TH SarabunPSK** (ฟรี ค้นหาคำว่า "TH SarabunPSK ดาวน์โหลด" ได้จาก SIPA หรือ f0nt.com) ถ้าไม่มี Word จะแสดงเป็นฟอนต์อื่นแทน
-- (ไม่บังคับ) **Windows + Microsoft Word** ถ้าต้องการให้สร้าง PDF ตัวอย่างอัตโนมัติ
-
-### 2. ติดตั้ง skill
-
-**Claude Code**: พิมพ์ 2 คำสั่งนี้ในช่องแชท
+<details>
+<summary><strong>Claude Code</strong></summary>
 
 ```
 /plugin marketplace add Kasidet4531/thai-coop-report-skill
 /plugin install coop-report-docx@thai-coop-report
 ```
 
-**Claude Desktop / Claude.ai**:
-1. กดปุ่ม **Code → Download ZIP** ที่หน้า repo นี้ แล้วแตกไฟล์
-2. บีบอัดโฟลเดอร์ `skills/coop-report-docx` ให้เป็นไฟล์ zip
-3. ไปที่ **Settings → Capabilities → Skills → Upload skill** แล้วเลือกไฟล์ zip นั้น
+To update later: `/plugin marketplace update thai-coop-report`.
 
-หมายเหตุ: Claude.ai บนเว็บอาจยังไม่มี `pythainlp` ติดตั้งไว้ ถ้าไม่มี skill จะจัดเนื้อหาชิดซ้ายแทน Thai Distributed
+</details>
 
-**Codex / Antigravity**: ใช้สคริปต์ติดตั้งคำสั่งเดียว สคริปต์จะดาวน์โหลด skill ไปวางในโฟลเดอร์ที่ถูกต้อง และติดตั้ง `python-docx` กับ `pythainlp` ให้ด้วย
+<details>
+<summary><strong>Codex / Antigravity</strong> (one-line installer)</summary>
 
-Windows (เปิด PowerShell แล้ววาง):
+Windows (PowerShell):
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Kasidet4531/thai-coop-report-skill/main/install.ps1))) -Target codex,antigravity
@@ -66,52 +45,121 @@ macOS / Linux:
 curl -fsSL https://raw.githubusercontent.com/Kasidet4531/thai-coop-report-skill/main/install.sh | bash -s -- codex antigravity
 ```
 
-เลือก target ได้ตามโปรแกรมที่ใช้ ใส่หลายตัวพร้อมกันได้
+The installer downloads the skill into the folder each agent scans and installs the Python packages for you. Choose any combination of targets:
 
-| target | ติดตั้งให้ | โฟลเดอร์ |
+| Target | Agent | Folder |
 |---|---|---|
 | `codex` | Codex (CLI / IDE / app) | `~/.agents/skills/` |
-| `antigravity` | Antigravity IDE และ Antigravity 2.0 | `~/.gemini/config/skills/` |
+| `antigravity` | Antigravity IDE and 2.0 | `~/.gemini/config/skills/` |
 | `antigravity-cli` | Antigravity CLI (`agy`) | `~/.gemini/antigravity-cli/skills/` |
-| `claude` | Claude Code แบบไม่ผ่าน plugin | `~/.claude/skills/` |
-| `project` | เฉพาะโปรเจกต์ที่เปิดอยู่ ใช้ได้ทั้ง Codex และ Antigravity | `./.agents/skills/` |
-| `all` (ค่าเริ่มต้น) | claude + codex + antigravity | |
+| `claude` | Claude Code, without the plugin | `~/.claude/skills/` |
+| `project` | Current project only (Codex and Antigravity) | `./.agents/skills/` |
+| `all` (default) | claude + codex + antigravity | |
 
-ติดตั้งเสร็จแล้ว **ปิดแล้วเปิดโปรแกรมใหม่** หรือเริ่ม session ใหม่ เพื่อให้โปรแกรมโหลด skill
+Restart the app afterwards. Re-run the same command to update. Older Codex versions read `~/.codex/skills/`; if Codex doesn't see the skill, copy the folder there too.
 
-**ติดตั้งเองแบบไม่ใช้สคริปต์**: ดาวน์โหลดหรือ clone repo นี้ แล้วคัดลอกโฟลเดอร์ `skills/coop-report-docx` ไปไว้ในโฟลเดอร์ตามตารางด้านบน
+</details>
 
-หมายเหตุ:
-- Codex เวอร์ชันเก่าอ่าน skill จาก `~/.codex/skills/` ถ้าติดตั้งแล้ว Codex ไม่เห็น skill ให้คัดลอกโฟลเดอร์ไปไว้ที่นั่นด้วย
-- ถ้าจะอัปเดตเป็นเวอร์ชันใหม่ ให้รันคำสั่งติดตั้งซ้ำ
+<details>
+<summary><strong>Claude Desktop / Claude.ai</strong></summary>
 
-### ใช้สคริปต์โดยตรง ไม่ผ่าน AI
+1. Click **Code → Download ZIP** on this page and unzip it.
+2. Zip the `skills/coop-report-docx` folder on its own.
+3. Go to **Settings → Capabilities → Skills → Upload skill** and pick that zip.
 
-```bash
-# เทมเพลตเปล่า
-python skills/coop-report-docx/scripts/build_report.py --template เล่มสหกิจ.docx
+Claude.ai on the web runs skills in a sandbox that may not have `pythainlp`. Without it, body text falls back to left alignment instead of Thai Distributed.
 
-# สร้างจากไฟล์เนื้อหา (ดูรูปแบบไฟล์ได้ที่ skills/coop-report-docx/references/content-schema.md)
-python skills/coop-report-docx/scripts/build_report.py content.json เล่มสหกิจ.docx
+</details>
 
-# ตรวจ format
-python skills/coop-report-docx/scripts/check_format.py เล่มสหกิจ.docx
+<details>
+<summary><strong>Any other agent</strong></summary>
+
+Copy `skills/coop-report-docx` into the folder your agent loads skills from.
+
+</details>
+
+### 3. Ask for your report
+
+In Thai or English, for example:
+
+> ช่วยทำเทมเพลตเล่มสหกิจให้หน่อย ชื่อ นายสมชาย ใจดี ภาควิชาวิศวกรรมไฟฟ้า ฝึกที่บริษัท ABC ปีการศึกษา 2568
+
+> ไฟล์ draft.docx เป็นร่างเล่มสหกิจ ช่วยจัดให้ถูก format หน่อย เนื้อหาห้ามเปลี่ยน
+
+> Here are my internship notes. Draft my co-op report and leave anything I haven't measured as placeholders.
+
+When you open the file, click **Yes** when Word asks to update fields. That fills in the table of contents.
+
+## Why This Skill Exists
+
+We ran the same three requests through an agent with and without the skill, two rounds each, and checked every output file with a script. With the skill, every report passed every check. Without it, reports passed about 62% of checks, and they failed in the same ways each time.
+
+### #1: The Agent Doesn't Know Your Department's Format
+
+**The problem.** Without the format, an agent falls back on generic Thai thesis conventions. In our tests those defaults broke these department rules:
+
+| Rule | Without the skill | Department format |
+|---|---|---|
+| Margins | 1.5" top and left | 3 cm left; 2.54 cm top, right, bottom |
+| Chapter titles | 20 pt | 18 pt bold, centred |
+| Front-matter page numbers | ก ข ค or i ii iii | I II III |
+| Page number position | top right | bottom centre |
+| Chapter first page | numbered | no number |
+| Font | TH Sarabun New | TH SarabunPSK |
+
+**The fix.** The layout comes from a script (`build_report.py`), not from the model's memory, so it is the same every time. A second script (`check_format.py`) checks the result before you get it.
+
+### #2: Thai Text Looks Broken in Word
+
+**The problem.** Thai has no spaces between words, and many Word installations can't find Thai word boundaries. They wrap lines only at spaces, so Thai Distributed alignment spreads the letters across the line: "ว ิ ธ ี ก า ร".
+
+**The fix.** The script splits Thai text into words with [PyThaiNLP](https://github.com/PyThaiNLP/pythainlp) and marks each boundary with an invisible zero-width space. Word then wraps between words, and the lines fill properly.
+
+### #3: The Agent Fills Gaps With Plausible Fiction
+
+**The problem.** A co-op report has results, names and dates the agent can't know. A made-up satisfaction score in a submitted report is much worse than a visible gap.
+
+**The fix.** The skill tells the agent to leave missing facts as red `[placeholders]`, and the checker lists every placeholder still to fill.
+
+## What's Inside
+
+```
+skills/coop-report-docx/
+├── SKILL.md                    # the workflow the agent follows
+├── scripts/
+│   ├── build_report.py         # content.json → formatted .docx
+│   ├── check_format.py         # verifies the format, lists placeholders
+│   └── finalize_with_word.ps1  # Windows + Word: refresh the TOC, export a PDF
+├── references/
+│   ├── format-rules.md         # the department format, plus conventions from a reviewed report
+│   └── content-schema.md       # every field and option in content.json
+└── evals/                      # test cases (claude plugin eval)
 ```
 
-## หลังได้ไฟล์แล้ว
+### Use the scripts without an agent
 
-- ตอนเปิดไฟล์ ถ้า Word ถามว่า "อัปเดตฟิลด์ไหม" ให้กด **Yes** สารบัญจะขึ้นมาเอง
-  ถ้าแก้หัวข้อทีหลัง ให้คลิกขวาที่สารบัญ เลือก **Update Field** แล้วเลือก **Update entire table**
-- ข้อความ **[สีแดงในวงเล็บ]** คือส่วนที่ต้องเติมเอง
-- โลโก้บนปกเว้นที่ไว้ให้วางรูปเอง
-- ถ้าจะเพิ่มหัวข้อใหม่ ให้ใช้สไตล์ Heading 1/2/3 หัวข้อนั้นจึงจะขึ้นในสารบัญ
+```bash
+# blank template
+python skills/coop-report-docx/scripts/build_report.py --template report.docx
 
-## ปรับให้เข้ากับมหาวิทยาลัยอื่น
+# from a content file (see references/content-schema.md)
+python skills/coop-report-docx/scripts/build_report.py content.json report.docx
 
-ค่าเริ่มต้นของ skill นี้ทำตามคู่มือของคณะวิศวกรรมศาสตร์ สจล. (KMITL)
-- **ชื่อสถาบันและคณะ:** แค่บอก AI ว่าเรียนที่ไหน หรือแก้ `institute` / `faculty` ใน content.json
-- **ขอบกระดาษ ขนาดตัวอักษร และค่าอื่น ๆ:** แก้ค่าคงที่ด้านบนของ `scripts/build_report.py` และฟังก์ชัน `setup_section`
-  ส่วนกฎทั้งหมดดูได้ที่ `references/format-rules.md`
+# check the format
+python skills/coop-report-docx/scripts/check_format.py report.docx
+```
+
+## Adapting It to Another University
+
+The defaults follow the Faculty of Engineering at KMITL (สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง).
+
+- **Institute and faculty names:** tell the agent where you study, or set `institute` and `faculty` in `content.json`.
+- **Layout options:**
+  - `reference_style`: `numbered` [1] or `apa`
+  - `chapter_first_page_number`: show page numbers on chapter first pages
+  - `justify`: `thaiDistribute`, `both` or `left`
+  - toggles for the outer cover and the flyleaf
+- **Margins, sizes and spacing:** edit the constants at the top of `build_report.py`. The rules are documented in `references/format-rules.md`.
 
 ## License
 
