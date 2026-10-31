@@ -51,3 +51,25 @@ Header lines — label 16 bold, value 16 regular, label and value separated by 2
 
 Then: blank line → "บทคัดย่อ" / "ABSTRACT" 18 bold centred → blank line → body 16 regular,
 first line starts at the 9th character, max one page → blank line → "คำสำคัญ :" / "Keywords :" in 14 pt.
+
+## Conventions from a reviewed report (not in the handout)
+
+A recent final report from the same faculty that passed advisor review adds these
+details. The script follows them unless they conflict
+with the handout.
+
+- Abstract header: labels bold, values aligned in one column; "คณะ … ภาควิชา …" share a line.
+  Two blank lines above and below the "บทคัดย่อ"/"ABSTRACT" heading.
+- Each chapter opens with a short paragraph introducing it, often followed by a
+  numbered list of the chapter's sections, before section X.1.
+- Section headings "1.1 ชื่อหัวข้อ" (one space), bold, flush left, a blank line above.
+- Captions in regular weight: "ตารางที่ 3.1 …" above the table (blank line above it),
+  "รูปที่ 2.1 …" centred below the figure.
+- In-text citations as [1], [2]; เอกสารอ้างอิง numbered [1] … with a hanging indent.
+- สารบัญ lists itself; chapter and part entries bold, sections regular and indented.
+- A divider page with just "ภาคผนวก" before ภาคผนวก ก, ข, ….
+- ประวัติผู้เขียน as label/value rows: ชื่อ-สกุล นักศึกษา, รหัสนักศึกษา, ภูมิลำเนา,
+  การติดต่อ, ประวัติการศึกษา.
+- Cover department line may add the programme: "ภาควิชา… หลักสูตรวิศวกรรมศาสตรบัณฑิต".
+- **Conflict:** the reviewed book prints page numbers on chapter first pages; the handout
+  says not to. Default follows the handout; `options.chapter_first_page_number` switches.

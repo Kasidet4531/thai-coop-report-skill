@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check a co-op report .docx against the สหกิจศึกษา formatting rules.
 
-Usage: python check_format.py report.docx
+Usage: python check_format.py report.docx [--allow-chapter-page-numbers]
 
 Prints one PASS/FAIL line per rule, then lists any "[...]" placeholders left
 for the student to fill in. Exit code 1 if any rule fails.
@@ -20,7 +20,7 @@ def near(a, b, tol=0.05):
     return a is not None and abs(a / CM - b) <= tol
 
 
-def main(path):
+def main(path, allow_chapter_numbers=False):
     try:  # Windows consoles default to a Thai/ANSI code page
         sys.stdout.reconfigure(encoding="utf-8")
     except AttributeError:
@@ -96,7 +96,10 @@ def main(path):
                 break
         if first_text.startswith("บทที่"):
             chapter_sections.append((i, s.different_first_page_header_footer))
-    check("No page number on each chapter's first page",
+    if allow_chapter_numbers:  # built with options.chapter_first_page_number
+        check("Each chapter starts on a new section", bool(chapter_sections), str(chapter_sections))
+    else:
+        check("No page number on each chapter's first page",
           bool(chapter_sections) and all(t for _, t in chapter_sections),
           str(chapter_sections))
 
@@ -146,7 +149,8 @@ def main(path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if len(args) != 1:
         print(__doc__)
         sys.exit(2)
-    sys.exit(main(sys.argv[1]))
+    sys.exit(main(args[0], allow_chapter_numbers="--allow-chapter-page-numbers" in sys.argv))

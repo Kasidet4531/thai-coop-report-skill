@@ -15,6 +15,8 @@ Inside any text string:
     "title_en": "Development of an RFID Inventory Tracking System",
     "students": ["นายสมชาย ใจดี"],            // one or more names on the cover
     "students_en": ["Mr. Somchai Jaidee"],
+    "student_id": "65010000",                  // shown in ประวัติผู้เขียน
+    "program": "หลักสูตรวิศวกรรมศาสตรบัณฑิต",     // optional; appended to the department line on the cover
     "department": "วิศวกรรมคอมพิวเตอร์",       // printed as "ภาควิชา" + value
     "department_en": "Computer Engineering",
     "faculty": "วิศวกรรมศาสตร์",                // default วิศวกรรมศาสตร์
@@ -52,18 +54,26 @@ Inside any text string:
     }
   ],
 
-  "references": ["รายการอ้างอิง 1", "Reference 2"],   // hanging indent
+  "references": ["รายการอ้างอิง 1", "Reference 2"],   // numbered [1], [2] … — cite in the text as [1]
+                                                     // (don't type the [n] yourself; the script adds it)
   "appendices": [                                    // ภาคผนวก ก, ข, ค …
     {"title": "คู่มือการใช้งาน", "content": [ BLOCK ]}
   ],
-  "biography": {"ชื่อ-สกุล": "นายสมชาย ใจดี", "วันเกิด": "1 มกราคม 2546",
-                "ประวัติการศึกษา": "..."},           // dict → bold label lines; or list of paragraphs
+  "biography": {"ชื่อ-สกุล นักศึกษา": "นายสมชาย ใจดี", "รหัสนักศึกษา": "65010000",
+                "ภูมิลำเนา": "...", "การติดต่อ": "...",
+                "ประวัติการศึกษา": ["มัธยม …", "ปริญญาตรี …"]},
+                // dict → bold label + value column (a list value = several lines);
+                // omit it to get these five rows as placeholders (student_id filled from meta)
 
   "options": {
     "outer_cover": true,       // ปกนอก + กระดาษรองปก before ปกใน
     "flyleaf": true,           // the blank กระดาษรองปก page
     "list_of_tables": null,    // default: only if the report has a table
     "list_of_figures": null,   // default: only if the report has a figure
+    "reference_style": "numbered", // "numbered" ([1] …, default) or "apa" (hanging indent, no numbers)
+    "chapter_first_page_number": false, // handout: no number on a chapter's first page.
+                                    // true = show it (some reviewed books do); then run
+                                    // check_format.py with --allow-chapter-page-numbers
     "justify": "thaiDistribute" // body alignment: "thaiDistribute" (default), "both" or "left".
                                 // Justified modes depend on the zero-width Thai word breaks
                                 // the script inserts (needs pythainlp); use "left" only if

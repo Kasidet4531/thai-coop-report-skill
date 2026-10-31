@@ -45,7 +45,12 @@ Map the draft onto the book: cover info → `meta`; abstract/keywords; chapters 
 `chapters[].sections[]`. Keep the student's wording, chapter titles and section count —
 the handout explicitly allows adapting titles and number of sections to the project.
 Only strip numbering they typed by hand ("1.1", "บทที่ 2"), because the script numbers
-headings itself and you'd otherwise get "1.1 1.1 …".
+headings itself and you'd otherwise get "1.1 1.1 …". Likewise strip "[1]" from the
+start of reference entries; the script numbers them, and in-text citations stay as [1].
+
+When you draft content, open each chapter with a short `intro` paragraph that says what
+the chapter covers, optionally followed by a `numbered` list of its sections. Reviewed
+reports in this department do this, and it reads better than jumping straight to X.1.
 
 ### 3. Write content.json
 

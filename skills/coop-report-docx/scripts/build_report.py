@@ -29,6 +29,8 @@ BODY_PT = 16
 CHAPTER_PT = 18
 KEYWORD_PT = 14
 FIRST_LINE_INDENT = Cm(1.5)  # "เริ่มพิมพ์ตัวอักษรตัวที่ 9" ≈ 8 character widths
+LABEL_TAB = Cm(4.5)    # where values start on label/value lines (abstract header, biography)
+SECOND_TAB = Cm(9.0)   # second column on the "คณะ … ภาควิชา …" line
 PLACEHOLDER_COLOR = RGBColor(0xC0, 0x00, 0x00)
 
 THAI_APPENDIX_LETTERS = "กขคงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ"
@@ -246,7 +248,7 @@ class ReportBuilder:
 
         h2 = st["Heading 2"]
         style_font(h2, BODY_PT, bold=True)
-        h2.paragraph_format.space_before = Pt(BODY_PT * 0.5)
+        h2.paragraph_format.space_before = Pt(BODY_PT)
         h2.paragraph_format.space_after = Pt(0)
         h2.paragraph_format.keep_with_next = True
 
@@ -270,15 +272,19 @@ class ReportBuilder:
             s.base_style = normal
             style_font(s, BODY_PT)
         st["Table Caption"].paragraph_format.keep_with_next = True
+        st["Table Caption"].paragraph_format.space_before = Pt(BODY_PT)  # blank line above, as in reviewed books
         st["Figure Caption"].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
         for i in range(1, 4):
-            name = f"TOC {i}" if f"TOC {i}" in [s.name for s in st] else None
-            if name is None:
-                s = st.add_style(f"TOC {i}", WD_STYLE_TYPE.PARAGRAPH)
-                s.base_style = normal
-            style_font(st[f"TOC {i}"], BODY_PT)
-            st[f"TOC {i}"].paragraph_format.space_after = Pt(0)
-            st[f"TOC {i}"].paragraph_format.space_before = Pt(0)
+            # Word only applies a TOC style whose internal name is the built-in
+            # "toc N" (id TOCN); a custom style called "TOC N" is silently ignored.
+            s = st.add_style(f"toc {i}", WD_STYLE_TYPE.PARAGRAPH)
+            s.element.set(qn("w:styleId"), f"TOC{i}")
+            s.element.attrib.pop(qn("w:customStyle"), None)
+            s.base_style = normal
+            style_font(s, BODY_PT, bold=(i == 1))  # chapters and parts bold, sections regular
+            s.paragraph_format.left_indent = Cm(0.75 * (i - 1))
+            s.paragraph_format.space_after = Pt(0)
+            s.paragraph_format.space_before = Pt(0)
         for name in ("List Bullet", "List Number"):
             style_font(st[name], BODY_PT)
 
@@ -365,7 +371,8 @@ class ReportBuilder:
         for s in students:
             self.para(s, size=18, bold=True, align="center")
         self.blank(20, 4 - min(len(students), 3))
-        self.para(f"ภาควิชา{self.m('department', '...')}", size=18, bold=True, align="center")
+        program = f" {meta['program']}" if meta.get("program") else ""
+        self.para(f"ภาควิชา{self.m('department', '...')}{program}", size=18, bold=True, align="center")
         self.para(f"คณะ{self.meta.get('faculty', 'วิศวกรรมศาสตร์')}", size=18, bold=True, align="center")
         self.para(self.meta.get("institute", "สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง"),
                   size=18, bold=True, align="center")
@@ -380,47 +387,62 @@ class ReportBuilder:
         ]
         for label, val in rows:
             self._label_line(label, val)
-        p = self.doc.add_paragraph()
-        self._label_runs(p, "คณะ", meta.get("faculty", "วิศวกรรมศาสตร์"))
-        p.add_run("  ")
-        self._label_runs(p, "ภาควิชา", self.m("department", "ภาควิชา"))
+        self._two_column_line("คณะ", meta.get("faculty", "วิศวกรรมศาสตร์"),
+                              "ภาควิชา", self.m("department", "ภาควิชา"))
         self._label_line("ชื่อ-สกุล อาจารย์นิเทศ", self.m("advisor", "ชื่ออาจารย์นิเทศ"))
         self._label_line("ชื่อ-สกุล ผู้นิเทศงาน", self.m("mentor", "ชื่อผู้นิเทศงาน"))
         self._label_line("สถานประกอบการ", self.m("company", "ชื่อสถานประกอบการ"))
-        self.blank()
+        self.blank(n=2)
         self.doc.add_paragraph("บทคัดย่อ", style="Heading 1").paragraph_format.space_after = Pt(0)
-        self.blank()
+        self.blank(n=2)
         self._abstract_body(self.data.get("abstract_th"), "เนื้อหาบทคัดย่อภาษาไทย ไม่เกิน 1 หน้า")
         self.blank()
         self._keywords("คำสำคัญ", self.data.get("keywords_th"), "คำสำคัญ 3-5 คำ")
 
     def abstract_en(self):
         meta = self.meta
-        self._label_line("Cooperative Title", self.m("title_en", "Project title in English"), sep=": ")
+        self._label_line("Cooperative Title", self.m("title_en", "Project title in English"))
         self._label_line("Student intern name",
-                         ", ".join(meta.get("students_en") or []) or self.m("student_en", "Student name"), sep=": ")
-        p = self.doc.add_paragraph()
-        self._label_runs(p, "Faculty", meta.get("faculty_en", "Engineering"), sep=": ")
-        p.add_run("  ")
-        self._label_runs(p, "Department", self.m("department_en", "Department"), sep=": ")
-        self._label_line("Advisor name", self.m("advisor_en", "Advisor name"), sep=": ")
-        self._label_line("Mentor name", self.m("mentor_en", "Mentor name"), sep=": ")
-        self._label_line("Company", self.m("company_en", "Company name"), sep=": ")
-        self.blank()
+                         ", ".join(meta.get("students_en") or []) or self.m("student_en", "Student name"))
+        self._two_column_line("Faculty", meta.get("faculty_en", "Engineering"),
+                              "Department", self.m("department_en", "Department"))
+        self._label_line("Advisor name", self.m("advisor_en", "Advisor name"))
+        self._label_line("Mentor name", self.m("mentor_en", "Mentor name"))
+        self._label_line("Company", self.m("company_en", "Company name"))
+        self.blank(n=2)
         self.doc.add_paragraph("ABSTRACT", style="Heading 1").paragraph_format.space_after = Pt(0)
-        self.blank()
+        self.blank(n=2)
         self._abstract_body(self.data.get("abstract_en"), "English abstract, no longer than one page")
         self.blank()
         self._keywords("Keywords", self.data.get("keywords_en"), "3-5 keywords")
 
-    def _label_runs(self, p, label, value, sep="  "):
+    def _label_runs(self, p, label, value, sep="\t"):
         r = p.add_run(f"{label}{sep}")
         set_run_font(r, BODY_PT, bold=True)
         self._add_runs(p, value, BODY_PT, False)
 
-    def _label_line(self, label, value, sep="  "):
+    def _label_line(self, label, value):
+        """Bold label, then the value in a column at LABEL_TAB. A hanging indent keeps
+        wrapped values (long titles, addresses) aligned under the first line."""
         p = self.doc.add_paragraph()
-        self._label_runs(p, label, value, sep)
+        pf = p.paragraph_format
+        pf.tab_stops.add_tab_stop(LABEL_TAB)
+        pf.left_indent = LABEL_TAB
+        pf.first_line_indent = -LABEL_TAB
+        self._label_runs(p, label, value)
+        return p
+
+    def _two_column_line(self, label1, value1, label2, value2):
+        p = self.doc.add_paragraph()
+        pf = p.paragraph_format
+        pf.tab_stops.add_tab_stop(LABEL_TAB)
+        pf.tab_stops.add_tab_stop(SECOND_TAB)
+        pf.left_indent = LABEL_TAB  # a long department name wraps under the values
+        pf.first_line_indent = -LABEL_TAB
+        self._label_runs(p, label1, value1)
+        r = p.add_run("\t")
+        set_run_font(r, BODY_PT)
+        self._label_runs(p, label2, value2, sep=" ")
 
     def _abstract_body(self, text, ph):
         paras = text if isinstance(text, list) else ([text] if text else [f"[{ph}]"])
@@ -467,10 +489,10 @@ class ReportBuilder:
         for si, sec in enumerate(sections, 1):
             num = f"{idx}.{si}"
             heading = sec.get("heading") or "[หัวข้อ]"
-            self.doc.add_paragraph(f"{num}  {heading}", style="Heading 2")
+            self.doc.add_paragraph(f"{num} {heading}", style="Heading 2")
             self._blocks_or_placeholder(sec, idx)
             for ssi, sub in enumerate(sec.get("subsections") or [], 1):
-                self.doc.add_paragraph(f"{num}.{ssi}  {sub.get('heading') or '[หัวข้อย่อย]'}", style="Heading 3")
+                self.doc.add_paragraph(f"{num}.{ssi} {sub.get('heading') or '[หัวข้อย่อย]'}", style="Heading 3")
                 self._blocks_or_placeholder(sub, idx)
 
     def _blocks_or_placeholder(self, sec, chap):
@@ -520,8 +542,8 @@ class ReportBuilder:
     def table(self, b, chap):
         n = self.table_count[chap] = self.table_count.get(chap, 0) + 1
         cap = self.doc.add_paragraph(style="Table Caption")
-        r = cap.add_run(f"ตารางที่ {chap}.{n}  ")
-        set_run_font(r, BODY_PT, bold=True)
+        r = cap.add_run(f"ตารางที่ {chap}.{n} ")
+        set_run_font(r, BODY_PT)
         self._add_runs(cap, b.get("caption", "[ชื่อตาราง]"), BODY_PT, False)
         rows = b.get("rows") or [["[หัวตาราง]", "[หัวตาราง]"], ["", ""]]
         ncols = max(len(r) for r in rows)
@@ -548,25 +570,35 @@ class ReportBuilder:
             self._add_runs(p, f"[ใส่รูปภาพ: {path or 'ไฟล์รูป'}]", BODY_PT, False)
         p.paragraph_format.keep_with_next = True
         cap = self.doc.add_paragraph(style="Figure Caption")
-        r = cap.add_run(f"รูปที่ {chap}.{n}  ")
-        set_run_font(r, BODY_PT, bold=True)
+        r = cap.add_run(f"รูปที่ {chap}.{n} ")
+        set_run_font(r, BODY_PT)
         self._add_runs(cap, b.get("caption", "[คำอธิบายรูป]"), BODY_PT, False)
         self.blank()
 
     # ---- back matter
     def references(self):
         self.doc.add_paragraph("เอกสารอ้างอิง", style="Heading 1")
+        self.blank()
         refs = self.data.get("references") or ["[รายการเอกสารอ้างอิงตามรูปแบบที่ภาควิชากำหนด]"]
-        for ref in refs:
-            p = self.para(ref)
+        numbered = self.data.get("options", {}).get("reference_style", "numbered") == "numbered"
+        for i, ref in enumerate(refs, 1):
+            # numbered ("[1]  …", cited in the text as [1]) or APA-style hanging indent
+            p = self.doc.add_paragraph()
+            if numbered:  # its own run: _add_runs would read "[1]" as a placeholder
+                r = p.add_run(f"[{i}]\t")
+                set_run_font(r, BODY_PT)
+            self._add_runs(p, ref, BODY_PT, False, wrap=True)
+            p.paragraph_format.tab_stops.add_tab_stop(Cm(1.27))
             p.paragraph_format.left_indent = Cm(1.27)
             p.paragraph_format.first_line_indent = Cm(-1.27)
 
     def appendices(self):
         apps = self.data.get("appendices") or [{"title": "[ชื่อภาคผนวก]"}]
+        # divider page with "ภาคผนวก" in the middle of the page
+        p = self.doc.add_paragraph("ภาคผนวก", style="Heading 1")
+        p.paragraph_format.space_before = Pt(320)
         for i, app in enumerate(apps):
-            if i:
-                self.page_break()
+            self.page_break()
             letter = THAI_APPENDIX_LETTERS[i] if i < len(THAI_APPENDIX_LETTERS) else str(i + 1)
             p = self.doc.add_paragraph(style="Heading 1")
             r = p.add_run(f"ภาคผนวก {letter}")
@@ -577,10 +609,25 @@ class ReportBuilder:
 
     def biography(self):
         self.doc.add_paragraph("ประวัติผู้เขียน", style="Heading 1")
+        self.blank()
         bio = self.data.get("biography")
+        if bio is None:
+            meta = self.meta
+            bio = {
+                "ชื่อ-สกุล นักศึกษา": ", ".join(meta.get("students") or []) or self.m("student", "ชื่อ-สกุล"),
+                "รหัสนักศึกษา": self.m("student_id", "รหัสนักศึกษา"),
+                "ภูมิลำเนา": "[ที่อยู่ตามภูมิลำเนา]",
+                "การติดต่อ": "[อีเมล / เบอร์โทรศัพท์]",
+                "ประวัติการศึกษา": "[ประวัติการศึกษา เรียงจากมัธยมศึกษาถึงปัจจุบัน]",
+            }
         if isinstance(bio, dict):
             for k, v in bio.items():
-                self._label_line(k, str(v))
+                p = self._label_line(k, "")
+                lines = v if isinstance(v, list) else [str(v)]
+                for j, line in enumerate(lines):
+                    if j:
+                        p.add_run().add_break()
+                    self._add_runs(p, line, BODY_PT, False)
         else:
             paras = bio if isinstance(bio, list) else ([bio] if bio else [
                 "[ชื่อ-สกุล]", "[วัน เดือน ปีเกิด]", "[ประวัติการศึกษา]", "[ที่อยู่ / ช่องทางติดต่อ]"])
@@ -614,7 +661,7 @@ class ReportBuilder:
         self.acknowledgement()
         self.page_break()
         self.toc_page("สารบัญ", r'TOC \o "1-2" \h \z \u',
-                      "[สารบัญ — เปิดไฟล์ใน Word แล้วคลิกขวาที่นี่ > อัปเดตฟิลด์ (Update Field)]", in_toc=False)
+                      "[สารบัญ — เปิดไฟล์ใน Word แล้วคลิกขวาที่นี่ > อัปเดตฟิลด์ (Update Field)]")
         chapters = self.data.get("chapters") or DEFAULT_CHAPTERS
         has = lambda kind: kind in json.dumps(self.data.get("chapters", []) + self.data.get("appendices", []), ensure_ascii=False)
         if opts.get("list_of_tables", has('"table"')):
@@ -630,9 +677,12 @@ class ReportBuilder:
         for i, ch in enumerate(chapters, 1):
             sec = self.new_section()
             set_page_number_format(sec, "decimal", start=1 if i == 1 else None)
-            sec.different_first_page_header_footer = True
             page_number_footer(sec.footer)
-            clear_footer(sec.first_page_footer)
+            # The handout says no number on a chapter's first page; some reviewed
+            # books do show it, so it's an option.
+            if not opts.get("chapter_first_page_number", False):
+                sec.different_first_page_header_footer = True
+                clear_footer(sec.first_page_footer)
             self.chapter(i, ch)
 
         # Back matter — continues Arabic numbering
