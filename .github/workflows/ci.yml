@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check manifests and SKILL.md
+        run: |
+          python - <<'EOF'
+          import json, re, sys
+          plugin = json.load(open(".claude-plugin/plugin.json", encoding="utf-8"))
+          market = json.load(open(".claude-plugin/marketplace.json", encoding="utf-8"))
+          assert re.fullmatch(r"\d+\.\d+\.\d+", plugin["version"]), "plugin.json version must be X.Y.Z"
+          assert any(p["name"] == plugin["name"] for p in market["plugins"]), "plugin missing from marketplace.json"
+          skill = open("skills/coop-report-docx/SKILL.md", encoding="utf-8").read()
+          front = re.match(r"---\n(.*?)\n---", skill, re.S).group(1)
+          name = re.search(r"^name: (.+)$", front, re.M).group(1).strip()
+          desc = re.search(r"^description: (.+)$", front, re.M).group(1).strip()
+          assert name == "coop-report-docx", f"SKILL.md name is {name!r}"
+          # Codex recommends descriptions of 500 characters or fewer
+          assert len(desc) <= 500, f"SKILL.md description is {len(desc)} characters (max 500)"
+          print(f"ok: version {plugin['version']}, description {len(desc)} chars")
+          EOF
+
+      - name: Check installer syntax
+        run: |
+          bash -n install.sh
+          pwsh -NoProfile -Command '$null = [scriptblock]::Create((Get-Content -Raw install.ps1)); "install.ps1 parses"'
+
+      - name: Smoke test (build reports, check format)
+        run: python tests/smoke_test.py
+
+  release:
+    # push a tag such as v0.4.0 to publish a release with the skill zip attached
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag must match plugin.json version
+        run: |
+          version=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match plugin.json version $version"
+            exit 1
+          fi
+
+      - name: Package the skill
+        run: |
+          cd skills
+          zip -r ../coop-report-docx.zip coop-report-docx -x "coop-report-docx/evals/*" "*/__pycache__/*"
+          cd .. && unzip -l coop-report-docx.zip
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" coop-report-docx.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" coop-report-docx.zip \
+              --title "$GITHUB_REF_NAME" --generate-notes
+          fi

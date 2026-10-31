@@ -1,5 +1,7 @@
 # Thai Co-op Report Skill
 
+[![CI](https://github.com/Kasidet4531/thai-coop-report-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/Kasidet4531/thai-coop-report-skill/actions/workflows/ci.yml)
+
 An agent skill that builds your **รายงานสหกิจศึกษาฉบับสมบูรณ์** (Thai co-op education final report) as a Word file that already matches the department format, so you don't spend an evening fighting margins, Thai fonts and page numbers.
 
 Tell your agent what you have: a few cover details, a messy draft, or notes from your internship. You get back a `.docx` with the covers, both abstracts, the acknowledgement, an automatic table of contents, chapters 1–5, references, appendices and the author biography, all laid out correctly. Anything you haven't provided shows up as a red `[placeholder]`. The skill never makes up results or names.
@@ -161,6 +163,23 @@ The defaults follow the Faculty of Engineering at KMITL (สถาบันเ�
   - `justify`: `thaiDistribute`, `both` or `left`
   - toggles for the outer cover and the flyleaf
 - **Margins, sizes and spacing:** edit the constants at the top of `build_report.py`. The rules are documented in `references/format-rules.md`.
+
+## Development
+
+Every push runs [CI](.github/workflows/ci.yml): it checks the plugin manifests and `SKILL.md`, parses both installers, and runs `tests/smoke_test.py`. The smoke test builds a sample report and checks the format, along with the regressions found during development. Run it locally with:
+
+```bash
+python tests/smoke_test.py
+```
+
+To release, bump `version` in `.claude-plugin/plugin.json`, commit, then push a matching tag:
+
+```bash
+git tag v0.4.0
+git push origin v0.4.0
+```
+
+CI checks that the tag matches the version, packages `coop-report-docx.zip`, and publishes the release.
 
 ## License
 
