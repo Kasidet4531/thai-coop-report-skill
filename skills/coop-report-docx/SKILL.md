@@ -96,7 +96,9 @@ contents and gives you a PDF to look at:
 powershell -NoProfile -ExecutionPolicy Bypass -File <skill-dir>/scripts/finalize_with_word.ps1 -Docx "<output>.docx" -Pdf "<output>.pdf"
 ```
 
-Look at the cover, an abstract page and a chapter opener in the PDF. If Word reports
+Look at the cover, an abstract page and a chapter opener in the PDF. Your file-reading
+tool can usually open single PDF pages as images (e.g. Read with a page range), so you
+don't need a separate PDF-to-image converter. If Word reports
 the file opened read-only, the TOC in the .docx itself isn't refreshed — that's fine,
 the file asks Word to update fields when the student opens it.
 

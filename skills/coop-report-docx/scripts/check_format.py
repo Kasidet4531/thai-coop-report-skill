@@ -14,6 +14,8 @@ from docx.oxml.ns import qn
 
 FONT = "TH SarabunPSK"
 CM = 360000  # EMU per cm
+# same rule as build_report.py: "[1]", "[2, 5]" are citations, not gaps to fill
+PLACEHOLDER_RE = r"\[(?![\d\s,\-–]+\])[^\]]+\]"
 
 
 def near(a, b, tol=0.05):
@@ -135,11 +137,11 @@ def main(path, allow_chapter_numbers=False):
 
     ph = []
     for p in doc.paragraphs:
-        ph += re.findall(r"\[[^\]]+\]", p.text.replace(chr(0x200B), ""))
+        ph += re.findall(PLACEHOLDER_RE, p.text.replace(chr(0x200B), ""))
     for t in doc.tables:
         for row in t.rows:
             for c in row.cells:
-                ph += re.findall(r"\[[^\]]+\]", c.text.replace(chr(0x200B), ""))
+                ph += re.findall(PLACEHOLDER_RE, c.text.replace(chr(0x200B), ""))
     print(f"\n{len(results) - failed}/{len(results)} rules passed")
     if ph:
         print(f"{len(ph)} placeholder(s) still to fill in:")

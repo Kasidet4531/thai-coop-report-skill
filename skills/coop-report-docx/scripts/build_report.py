@@ -32,6 +32,8 @@ FIRST_LINE_INDENT = Cm(1.5)  # "เริ่มพิมพ์ตัวอัก
 LABEL_TAB = Cm(4.5)    # where values start on label/value lines (abstract header, biography)
 SECOND_TAB = Cm(9.0)   # second column on the "คณะ … ภาควิชา …" line
 PLACEHOLDER_COLOR = RGBColor(0xC0, 0x00, 0x00)
+# "[ข้อความ]" is a gap for the student to fill; "[1]", "[2, 5]", "[3-4]" are citations
+PLACEHOLDER_RE = r"\[(?![\d\s,\-–]+\])[^\]]*\]"
 
 THAI_APPENDIX_LETTERS = "กขคงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ"
 
@@ -303,17 +305,19 @@ class ReportBuilder:
         return p
 
     def _add_runs(self, p, text, size, bold, placeholder=False, wrap=False):
-        """Supports **bold** spans inside plain strings; [..] spans are placeholders."""
-        for part in re.split(r"(\*\*[^*]+\*\*|\[[^\]]*\])", text):
+        """Supports **bold** spans inside plain strings; [..] spans are placeholders,
+        except numeric citations such as [1], [2, 5] or [3-4], which stay plain text."""
+        for part in re.split(r"(\*\*[^*]+\*\*|" + PLACEHOLDER_RE + ")", text):
             if not part:
                 continue
-            if wrap and self.wrap_thai and not part.startswith("["):
-                # placeholders stay unmarked: the student types over them anyway
+            if wrap and self.wrap_thai:
+                # placeholders too: an unbreakable Thai placeholder makes Thai
+                # Distributed stretch the letters of the whole line around it
                 part = thai_word_breaks(part)
             if part.startswith("**") and part.endswith("**"):
                 r = p.add_run(part[2:-2])
                 set_run_font(r, size, True, placeholder)
-            elif part.startswith("[") and part.endswith("]"):
+            elif re.fullmatch(PLACEHOLDER_RE, part.replace(ZWSP, "")):
                 r = p.add_run(part)
                 set_run_font(r, size, bold, True)
             else:
