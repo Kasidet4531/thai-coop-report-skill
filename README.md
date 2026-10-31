@@ -63,9 +63,10 @@ Restart the app afterwards. Re-run the same command to update. Older Codex versi
 <details>
 <summary><strong>Claude Desktop / Claude.ai</strong></summary>
 
-1. Click **Code → Download ZIP** on this page and unzip it.
-2. Zip the `skills/coop-report-docx` folder on its own.
-3. Go to **Settings → Capabilities → Skills → Upload skill** and pick that zip.
+1. Download [`coop-report-docx.zip`](https://github.com/Kasidet4531/thai-coop-report-skill/releases/latest/download/coop-report-docx.zip) from the latest release.
+2. Go to **Settings → Capabilities → Skills → Upload skill** and pick that zip.
+
+To update, download the zip from the newest release and upload it again.
 
 Claude.ai on the web runs skills in a sandbox that may not have `pythainlp`. Without it, body text falls back to left alignment instead of Thai Distributed.
 
