@@ -1,6 +1,6 @@
 ---
 name: coop-report-docx
-description: Build a Thai cooperative-education final report (รายงานสหกิจศึกษาฉบับสมบูรณ์ / เล่มสหกิจ / เล่มรายงานฝึกงาน) as a correctly formatted Word .docx — covers, Thai and English abstracts, acknowledgement, automatic table of contents, chapters 1–5, references, appendices, author biography — with TH SarabunPSK, 3 cm left margin, Roman-numbered front matter and Arabic-numbered body. Use this skill whenever the user wants to make, format, reformat, fix, or start a สหกิจศึกษา / co-op / internship report or its template in Word, wants their draft text or existing .docx turned into the department format, or asks for "เล่มสหกิจ", "ทำเล่ม", "จัดรูปแบบรายงาน", "เทมเพลตรายงานสหกิจ", even if they don't say "docx" or name the format.
+description: Build a Thai co-op final report (รายงานสหกิจศึกษาฉบับสมบูรณ์, เล่มสหกิจ, เล่มรายงานฝึกงาน) as a correctly formatted Word .docx (covers, abstracts, TOC, chapters 1-5, references, appendices; TH SarabunPSK, Roman/Arabic page numbers). Use whenever the user wants to make, format, fix or template a สหกิจศึกษา/co-op/internship report, turn a draft into the department format, or says "ทำเล่ม", "จัดรูปแบบรายงาน", "เทมเพลตเล่มสหกิจ", even without saying docx.
 ---
 
 # Co-op report (เล่มสหกิจศึกษา) builder

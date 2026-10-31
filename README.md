@@ -1,4 +1,4 @@
-# เล่มสหกิจศึกษา — Agent Skill สำหรับ Claude / Codex
+# เล่มสหกิจศึกษา — Agent Skill สำหรับ Claude / Codex / Antigravity
 
 Skill นี้ให้ AI สร้าง **รายงานสหกิจศึกษาฉบับสมบูรณ์** เป็นไฟล์ Word (.docx) ตามรูปแบบที่ภาควิชากำหนด
 คุณไม่ต้องตั้งค่าขอบกระดาษ ฟอนต์ หรือเลขหน้าเอง
@@ -52,13 +52,38 @@ Skill นี้ให้ AI สร้าง **รายงานสหกิจ�
 
 หมายเหตุ: Claude.ai บนเว็บอาจยังไม่มี `pythainlp` ติดตั้งไว้ ถ้าไม่มี skill จะจัดเนื้อหาชิดซ้ายแทน Thai Distributed
 
-**Codex** หรือ agent อื่นที่รองรับ Agent Skills (`SKILL.md`):
+**Codex / Antigravity**: ใช้สคริปต์ติดตั้งคำสั่งเดียว สคริปต์จะดาวน์โหลด skill ไปวางในโฟลเดอร์ที่ถูกต้อง และติดตั้ง `python-docx` กับ `pythainlp` ให้ด้วย
 
-```bash
-git clone https://github.com/Kasidet4531/thai-coop-report-skill.git
+Windows (เปิด PowerShell แล้ววาง):
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Kasidet4531/thai-coop-report-skill/main/install.ps1))) -Target codex,antigravity
 ```
 
-แล้วคัดลอกโฟลเดอร์ `skills/coop-report-docx` ไปไว้ในโฟลเดอร์ skills ของโปรแกรมนั้น สำหรับ Codex คือ `~/.codex/skills/` ตำแหน่งนี้อาจต่างกันตามเวอร์ชัน ควรเช็กในเอกสารของ Codex อีกครั้ง
+macOS / Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Kasidet4531/thai-coop-report-skill/main/install.sh | bash -s -- codex antigravity
+```
+
+เลือก target ได้ตามโปรแกรมที่ใช้ ใส่หลายตัวพร้อมกันได้
+
+| target | ติดตั้งให้ | โฟลเดอร์ |
+|---|---|---|
+| `codex` | Codex (CLI / IDE / app) | `~/.agents/skills/` |
+| `antigravity` | Antigravity IDE และ Antigravity 2.0 | `~/.gemini/config/skills/` |
+| `antigravity-cli` | Antigravity CLI (`agy`) | `~/.gemini/antigravity-cli/skills/` |
+| `claude` | Claude Code แบบไม่ผ่าน plugin | `~/.claude/skills/` |
+| `project` | เฉพาะโปรเจกต์ที่เปิดอยู่ ใช้ได้ทั้ง Codex และ Antigravity | `./.agents/skills/` |
+| `all` (ค่าเริ่มต้น) | claude + codex + antigravity | |
+
+ติดตั้งเสร็จแล้ว **ปิดแล้วเปิดโปรแกรมใหม่** หรือเริ่ม session ใหม่ เพื่อให้โปรแกรมโหลด skill
+
+**ติดตั้งเองแบบไม่ใช้สคริปต์**: ดาวน์โหลดหรือ clone repo นี้ แล้วคัดลอกโฟลเดอร์ `skills/coop-report-docx` ไปไว้ในโฟลเดอร์ตามตารางด้านบน
+
+หมายเหตุ:
+- Codex เวอร์ชันเก่าอ่าน skill จาก `~/.codex/skills/` ถ้าติดตั้งแล้ว Codex ไม่เห็น skill ให้คัดลอกโฟลเดอร์ไปไว้ที่นั่นด้วย
+- ถ้าจะอัปเดตเป็นเวอร์ชันใหม่ ให้รันคำสั่งติดตั้งซ้ำ
 
 ### ใช้สคริปต์โดยตรง ไม่ผ่าน AI
 
