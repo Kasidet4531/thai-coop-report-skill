@@ -1,0 +1,10 @@
+{
+  "name": "coop-report-docx",
+  "version": "0.1.0",
+  "description": "Build a Thai co-op education final report (รายงานสหกิจศึกษาฉบับสมบูรณ์) as a correctly formatted Word .docx: TH SarabunPSK, 3 cm left margin, Roman/Arabic page numbers, Thai Distributed text, automatic table of contents.",
+  "author": { "name": "Kasidet4531" },
+  "homepage": "https://github.com/Kasidet4531/thai-coop-report-skill",
+  "repository": "https://github.com/Kasidet4531/thai-coop-report-skill",
+  "license": "MIT",
+  "keywords": ["thai", "docx", "word", "co-op", "สหกิจศึกษา", "report"]
+}

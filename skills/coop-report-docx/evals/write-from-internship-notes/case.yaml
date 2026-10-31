@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: write-from-internship-notes
+expected_outcome: |
+  A complete .docx in the co-op format with chapters drafted from the notes; anything not given (measured results, advisor name, English names) left as visible placeholders rather than invented.

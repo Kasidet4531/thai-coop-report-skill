@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: format-messy-draft
+expected_outcome: |
+  The student's draft re-laid out in the co-op format: same wording, cover/abstract fields pulled from the draft, chapters 1-5 with their own section titles, the downtime table preserved as a captioned table, references kept; no duplicated manual numbering.
+context:
+  scaffold_script: place-files.sh

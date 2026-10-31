@@ -1,0 +1,14 @@
+{
+  "name": "thai-coop-report",
+  "description": "Thai co-op education (สหกิจศึกษา) report tools for Claude",
+  "owner": {
+    "name": "Kasidet4531"
+  },
+  "plugins": [
+    {
+      "name": "coop-report-docx",
+      "source": "./",
+      "description": "Thai co-op (สหกิจศึกษา) final report builder for Word .docx"
+    }
+  ]
+}

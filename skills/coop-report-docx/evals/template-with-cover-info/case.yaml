@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: template-with-cover-info
+expected_outcome: |
+  A .docx template in the co-op report format with the given cover details filled in (name, department, title TH/EN, company, advisor, year) and red placeholders everywhere else (abstract text, chapters, references), page setup and numbering correct.
